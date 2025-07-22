@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ConstructorTest extends BrowserTestBase {
 
-    private final String BASE_URL = "https://stellarburgers.nomoreparties.site";
+    private static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
     private User testUser;
     private String accessToken;
 
@@ -22,7 +22,7 @@ public class ConstructorTest extends BrowserTestBase {
     @Step("Создание тестового пользователя через API и запуск браузера")
     void setUp() {
         testUser = UserGenerator.getValidUser();
-        accessToken = createUser(testUser.getEmail(), testUser.getPassword(), testUser.getName());
+        accessToken = createUser(testUser);
 
         driver.get(BASE_URL);
 
@@ -72,10 +72,14 @@ public class ConstructorTest extends BrowserTestBase {
     }
 
     // === API ===
-    private String createUser(String email, String password, String name) {
+
+    private String createUser(User user) {
+        String body = String.format("{\"email\":\"%s\", \"password\":\"%s\", \"name\":\"%s\"}",
+                user.getEmail(), user.getPassword(), user.getName());
+
         io.restassured.response.Response response = io.restassured.RestAssured.given()
                 .contentType("application/json")
-                .body("{\"email\":\"" + email + "\", \"password\":\"" + password + "\", \"name\":\"" + name + "\"}")
+                .body(body)
                 .when()
                 .post(BASE_URL + "/api/auth/register")
                 .then()

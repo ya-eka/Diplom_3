@@ -5,8 +5,9 @@ import io.qameta.allure.*;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
-import pageobject.*;
+import pageobject.LoginPage;
+import pageobject.MainPage;
+import pageobject.ProfilePage;
 import utils.User;
 import utils.UserGenerator;
 
@@ -18,22 +19,26 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProfileTest extends BrowserTestBase {
 
-    private final String BASE_URL = "https://stellarburgers.nomoreparties.site";
+    private static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
+    private static final String API_BASE_PATH = "/api";
+
     private User testUser;
     private String accessToken;
 
     @BeforeEach
     @Step("Создание тестового пользователя через API")
     void createTestUser() {
-        RestAssured.baseURI = BASE_URL + "/api";
+        RestAssured.baseURI = BASE_URL + API_BASE_PATH;
         testUser = UserGenerator.getValidUser();
-        accessToken = createUser(testUser.getEmail(), testUser.getPassword(), testUser.getName());
+        accessToken = createUser(testUser);
     }
 
     @AfterEach
     @Step("Удаление тестового пользователя")
     void deleteTestUser() {
-        deleteUser(accessToken);
+        if (accessToken != null && !accessToken.isEmpty()) {
+            deleteUser(accessToken);
+        }
     }
 
     @Test
@@ -54,10 +59,15 @@ public class ProfileTest extends BrowserTestBase {
         assertTrue(profilePage.isProfileHeaderVisible(), "Заголовок 'Профиль' не отображается, переход не удался");
     }
 
-    private String createUser(String email, String password, String name) {
+    private String createUser(User user) {
+        String jsonBody = String.format(
+                "{\"email\":\"%s\", \"password\":\"%s\", \"name\":\"%s\"}",
+                user.getEmail(), user.getPassword(), user.getName()
+        );
+
         Response response = given()
                 .contentType("application/json")
-                .body("{\"email\":\"" + email + "\", \"password\":\"" + password + "\", \"name\":\"" + name + "\"}")
+                .body(jsonBody)
                 .when()
                 .post("/auth/register")
                 .then()
@@ -69,13 +79,11 @@ public class ProfileTest extends BrowserTestBase {
     }
 
     private void deleteUser(String accessToken) {
-        if (accessToken != null && !accessToken.isEmpty()) {
-            given()
-                    .header("Authorization", accessToken)
-                    .when()
-                    .delete("/auth/user")
-                    .then()
-                    .statusCode(202);
-        }
+        given()
+                .header("Authorization", accessToken)
+                .when()
+                .delete("/auth/user")
+                .then()
+                .statusCode(202);
     }
 }

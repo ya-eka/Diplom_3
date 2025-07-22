@@ -6,12 +6,15 @@ import org.openqa.selenium.WebDriver;
 
 import java.time.Duration;
 
+import io.qameta.allure.Step;
+
 public class BrowserTestBase {
 
     protected WebDriver driver;
     protected String browserName = "chrome";
 
     @BeforeEach
+    @Step("Запуск браузера {browserName}")
     public void setup() {
         System.out.println("Запуск браузера: " + browserName);
         driver = DriverFactory.createDriver(browserName);
@@ -20,6 +23,7 @@ public class BrowserTestBase {
     }
 
     @AfterEach
+    @Step("Закрытие браузера")
     public void tearDown() {
         if (driver != null) {
             System.out.println("Закрываем браузер");

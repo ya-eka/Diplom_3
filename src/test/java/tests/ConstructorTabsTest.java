@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConstructorTabsTest extends BrowserTestBase {
 
-    private final String BASE_URL = "https://stellarburgers.nomoreparties.site";
+    private static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
 
     @Test
     @DisplayName("Проверка переходов в разделы Конструктора")

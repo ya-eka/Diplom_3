@@ -10,21 +10,19 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class MainPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
 
-    private final By profileButton = By.xpath("//p[text()='Личный Кабинет']");
-    private final By loginLink = By.xpath("//a[text()='Войти']");
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
-    private final By loginButtonOnMain = By.xpath("//button[contains(@class,'button_button__33qZ0') and text()='Войти в аккаунт']");
+    // Константы для локаторов - заглавными буквами
+    private static final By PROFILE_BUTTON = By.xpath("//p[text()='Личный Кабинет']");
+    private static final By LOGIN_BUTTON_ON_MAIN = By.xpath("//button[contains(@class,'button_button__33qZ0') and text()='Войти в аккаунт']");
+    private static final By BUNS_TAB = By.xpath("//span[text()='Булки']");
+    private static final By SAUCES_TAB = By.xpath("//span[text()='Соусы']");
+    private static final By FILLINGS_TAB = By.xpath("//span[text()='Начинки']");
+    private static final By CONSTRUCTOR_HEADER = By.xpath("//h1[text()='Соберите бургер']");
 
-    private final By bunsTab = By.xpath("//span[text()='Булки']");
-    private final By saucesTab = By.xpath("//span[text()='Соусы']");
-    private final By fillingsTab = By.xpath("//span[text()='Начинки']");
-
-    private final By constructorHeader = By.xpath("//h1[text()='Соберите бургер']");
-
-    private final String activeTabClass = "tab_tab_type_current__2BEPc";
+    private static final String ACTIVE_TAB_CLASS = "tab_tab_type_current__2BEPc";
 
     public MainPage(WebDriver driver) {
         this.driver = driver;
@@ -32,31 +30,31 @@ public class MainPage {
     }
 
     public void clickProfileButton() {
-        wait.until(ExpectedConditions.elementToBeClickable(profileButton)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(PROFILE_BUTTON)).click();
     }
 
     public void clickLoginButtonFromMainPage() {
-        wait.until(ExpectedConditions.elementToBeClickable(loginButtonOnMain)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(LOGIN_BUTTON_ON_MAIN)).click();
     }
 
     public boolean isConstructorVisible() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(constructorHeader)).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(CONSTRUCTOR_HEADER)).isDisplayed();
     }
 
     public void clickBunsTab() {
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(bunsTab));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        clickTab(BUNS_TAB);
     }
 
     public void clickSaucesTab() {
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(saucesTab));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        clickTab(SAUCES_TAB);
     }
 
     public void clickFillingsTab() {
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(fillingsTab));
+        clickTab(FILLINGS_TAB);
+    }
+
+    private void clickTab(By tabLocator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(tabLocator));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
     }
@@ -64,18 +62,18 @@ public class MainPage {
     private boolean isTabActive(By tabLocator) {
         WebElement tabSpan = wait.until(ExpectedConditions.visibilityOfElementLocated(tabLocator));
         WebElement tabDiv = tabSpan.findElement(By.xpath("./.."));
-        return wait.until(ExpectedConditions.attributeContains(tabDiv, "class", activeTabClass));
+        return wait.until(ExpectedConditions.attributeContains(tabDiv, "class", ACTIVE_TAB_CLASS));
     }
 
     public boolean isBunsTabActive() {
-        return isTabActive(bunsTab);
+        return isTabActive(BUNS_TAB);
     }
 
     public boolean isSaucesTabActive() {
-        return isTabActive(saucesTab);
+        return isTabActive(SAUCES_TAB);
     }
 
     public boolean isFillingsTabActive() {
-        return isTabActive(fillingsTab);
+        return isTabActive(FILLINGS_TAB);
     }
 }

@@ -1,16 +1,12 @@
 package utils;
 
-public class User {
-    private final String name;
-    private final String email;
-    private final String password;
+import lombok.Data;
+import lombok.AllArgsConstructor;
 
-    public User(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
+@Data
+@AllArgsConstructor
+public class User {
+    private String name;
+    private String email;
+    private String password;
 }

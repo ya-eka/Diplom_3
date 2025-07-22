@@ -26,21 +26,27 @@ public class RegistrationTest extends BrowserTestBase {
 
     private RegisterPage registerPage;
 
-    @ParameterizedTest(name = "Регистрация в браузере {0}")
+    private static final String REGISTER_URL = "https://stellarburgers.nomoreparties.site/register";
+
+    @Step("Открыть страницу регистрации")
+    private void openRegisterPage() {
+        driver.get(REGISTER_URL);
+        registerPage = new RegisterPage(driver);
+    }
+
+    @ParameterizedTest(name = "Успешная регистрация нового пользователя в браузере {0}")
     @ValueSource(strings = {"chrome", "yandex"})
     @DisplayName("Успешная регистрация нового пользователя")
     @Description("Проверка успешной регистрации пользователя с валидными данными")
     @Severity(SeverityLevel.CRITICAL)
-    @Step("Тест: успешная регистрация")
     void successfulRegistrationTest(String browser) {
         this.browserName = browser;
 
-        driver.get("https://stellarburgers.nomoreparties.site/register");
-        registerPage = new RegisterPage(driver);
+        openRegisterPage();
 
-        String uniqueEmail = "test" + System.currentTimeMillis() + "@mail.com";
-        User user = new User("TestUser", uniqueEmail, "validPassword123");
-        registerPage.register(user.getName(), user.getEmail(), user.getPassword());
+        User user = UserGenerator.getValidUser();
+
+        registerPage.register(user);
 
         LoginPage loginPage = new LoginPage(driver);
         assertTrue(loginPage.isLoginButtonVisible(), "После регистрации должна открыться форма логина");
@@ -52,7 +58,8 @@ public class RegistrationTest extends BrowserTestBase {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//p[text()='Личный Кабинет']"))).click();
 
         String currentUrl = driver.getCurrentUrl();
-        assertTrue(currentUrl.contains("/account"), "После логина должен быть переход в профиль, но текущий URL: " + currentUrl);
+        assertTrue(currentUrl.contains("/account"),
+                "После логина должен быть переход в профиль, но текущий URL: " + currentUrl);
     }
 
     @ParameterizedTest(name = "Ошибка при коротком пароле в браузере {0}")
@@ -60,15 +67,16 @@ public class RegistrationTest extends BrowserTestBase {
     @DisplayName("Ошибка при вводе короткого пароля")
     @Description("Проверка отображения ошибки при вводе пароля короче 6 символов")
     @Severity(SeverityLevel.NORMAL)
-    @Step("Тест: ошибка при коротком пароле")
     void shortPasswordErrorTest(String browser) {
-        this.browserName = browser;  // **ВАЖНО!**
+        this.browserName = browser;
 
-        driver.get("https://stellarburgers.nomoreparties.site/register");
-        registerPage = new RegisterPage(driver);
+        openRegisterPage();
 
         User user = UserGenerator.getValidUser();
-        registerPage.register(user.getName(), user.getEmail(), "12345");
+
+        User shortPasswordUser = new User(user.getName(), user.getEmail(), "12345");
+
+        registerPage.register(shortPasswordUser);
 
         assertTrue(registerPage.isPasswordErrorDisplayed(), "Должна отображаться ошибка о коротком пароле");
     }

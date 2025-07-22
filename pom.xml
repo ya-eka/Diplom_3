@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>untitled</artifactId>
+    <artifactId>diplom_3</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -23,6 +23,10 @@
         <allure.version>2.24.0</allure.version>
         <surefire.plugin.version>3.5.2</surefire.plugin.version>
         <allure.maven.plugin.version>2.11.2</allure.maven.plugin.version>
+
+        <!-- Добавлены версии для новых библиотек -->
+        <lombok.version>1.18.26</lombok.version>
+        <faker.version>1.0.2</faker.version>
     </properties>
 
     <!-- Используем BOM для JUnit -->
@@ -93,6 +97,21 @@
             <artifactId>webdrivermanager</artifactId>
             <version>5.5.3</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Lombok для уменьшения boilerplate в POJO -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Faker для генерации рандомных данных -->
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>${faker.version}</version>
         </dependency>
 
     </dependencies>

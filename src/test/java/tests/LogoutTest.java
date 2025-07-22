@@ -17,12 +17,19 @@ import java.time.Duration;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LogoutTest extends BrowserTestBase {
 
-    private final String BASE_URL = "https://stellarburgers.nomoreparties.site";
+    private static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
     private User testUser;
 
     @BeforeEach
     void prepareTestData() {
-        testUser = new User("Ягодарова", "yagodarova_46@gmail.com", "12345678");
+        // В соответствии с замечанием: создаём пользователя через API, а не фиксированные данные
+        testUser = utils.UserGenerator.getValidUser();
+        createUser(testUser);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        // TODO: добавить удаление пользователя через API (если нужно)
     }
 
     @Test
@@ -50,5 +57,21 @@ public class LogoutTest extends BrowserTestBase {
 
         assertTrue(driver.findElement(By.xpath("//button[text()='Войти']")).isDisplayed(),
                 "Кнопка 'Войти' не отображается — пользователь не вышел из аккаунта");
+    }
+
+    private void createUser(User user) {
+        String body = String.format("{\"email\":\"%s\", \"password\":\"%s\", \"name\":\"%s\"}",
+                user.getEmail(), user.getPassword(), user.getName());
+
+        io.restassured.response.Response response = io.restassured.RestAssured.given()
+                .contentType("application/json")
+                .body(body)
+                .when()
+                .post(BASE_URL + "/api/auth/register")
+                .then()
+                .extract()
+                .response();
+
+        Assertions.assertEquals(200, response.getStatusCode(), "Не удалось создать пользователя");
     }
 }
