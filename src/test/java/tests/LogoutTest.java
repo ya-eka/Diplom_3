@@ -8,6 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pageobject.LoginPage;
 import utils.User;
+import utils.UserClient;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
@@ -19,17 +20,17 @@ public class LogoutTest extends BrowserTestBase {
 
     private static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
     private User testUser;
+    private String accessToken;
 
     @BeforeEach
     void prepareTestData() {
-        // В соответствии с замечанием: создаём пользователя через API, а не фиксированные данные
         testUser = utils.UserGenerator.getValidUser();
-        createUser(testUser);
+        accessToken = UserClient.createUser(testUser); // сохрани токен для удаления
     }
 
     @AfterEach
     void cleanUp() {
-        // TODO: добавить удаление пользователя через API (если нужно)
+        UserClient.deleteUser(accessToken);
     }
 
     @Test
@@ -57,21 +58,5 @@ public class LogoutTest extends BrowserTestBase {
 
         assertTrue(driver.findElement(By.xpath("//button[text()='Войти']")).isDisplayed(),
                 "Кнопка 'Войти' не отображается — пользователь не вышел из аккаунта");
-    }
-
-    private void createUser(User user) {
-        String body = String.format("{\"email\":\"%s\", \"password\":\"%s\", \"name\":\"%s\"}",
-                user.getEmail(), user.getPassword(), user.getName());
-
-        io.restassured.response.Response response = io.restassured.RestAssured.given()
-                .contentType("application/json")
-                .body(body)
-                .when()
-                .post(BASE_URL + "/api/auth/register")
-                .then()
-                .extract()
-                .response();
-
-        Assertions.assertEquals(200, response.getStatusCode(), "Не удалось создать пользователя");
     }
 }

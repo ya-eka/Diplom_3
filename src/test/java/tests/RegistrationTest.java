@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import pageobject.LoginPage;
 import pageobject.RegisterPage;
 import utils.User;
+import utils.UserClient;
 import utils.UserGenerator;
 
 import java.time.Duration;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RegistrationTest extends BrowserTestBase {
 
     private RegisterPage registerPage;
+    private String createdUserToken;
 
     private static final String REGISTER_URL = "https://stellarburgers.nomoreparties.site/register";
 
@@ -32,6 +34,15 @@ public class RegistrationTest extends BrowserTestBase {
     private void openRegisterPage() {
         driver.get(REGISTER_URL);
         registerPage = new RegisterPage(driver);
+    }
+
+    @AfterEach
+    @Step("Удаление пользователя после теста, если он был создан")
+    public void tearDown() {
+        if (createdUserToken != null && !createdUserToken.isEmpty()) {
+            UserClient.deleteUser(createdUserToken);
+            createdUserToken = null;
+        }
     }
 
     @ParameterizedTest(name = "Успешная регистрация нового пользователя в браузере {0}")
@@ -47,6 +58,8 @@ public class RegistrationTest extends BrowserTestBase {
         User user = UserGenerator.getValidUser();
 
         registerPage.register(user);
+
+        createdUserToken = UserClient.loginAndGetToken(user);
 
         LoginPage loginPage = new LoginPage(driver);
         assertTrue(loginPage.isLoginButtonVisible(), "После регистрации должна открыться форма логина");

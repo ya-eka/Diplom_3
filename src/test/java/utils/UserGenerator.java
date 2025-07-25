@@ -16,10 +16,10 @@ public class UserGenerator {
         return new User(name, email, DEFAULT_PASSWORD);
     }
 
-    @Step("Генерация пользователя с некорректным паролем: {password}")
+ /*   @Step("Генерация пользователя с некорректным паролем: {password}")
     public static User getUserWithInvalidPassword(String password) {
         String name = FAKER.name().firstName() + "_" + System.currentTimeMillis();
         String email = FAKER.internet().emailAddress();
         return new User(name, email, password);
-    }
+    }*/
 }

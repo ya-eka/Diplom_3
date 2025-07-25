@@ -5,6 +5,7 @@ import io.qameta.allure.*;
 import org.junit.jupiter.api.*;
 import pageobject.*;
 import utils.User;
+import utils.UserClient;
 import utils.UserGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,14 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConstructorTest extends BrowserTestBase {
 
     private static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
-    private User testUser;
     private String accessToken;
 
     @BeforeEach
     @Step("Создание тестового пользователя через API и запуск браузера")
     void setUp() {
-        testUser = UserGenerator.getValidUser();
-        accessToken = createUser(testUser);
+        User testUser = UserGenerator.getValidUser();
+        accessToken = UserClient.createUser(testUser);
 
         driver.get(BASE_URL);
 
@@ -39,7 +39,7 @@ public class ConstructorTest extends BrowserTestBase {
     @AfterEach
     @Step("Удаление пользователя и закрытие браузера")
     public void tearDown() {
-        deleteUser(accessToken);
+        UserClient.deleteUser(accessToken);
         super.tearDown();
     }
 
@@ -69,35 +69,5 @@ public class ConstructorTest extends BrowserTestBase {
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isConstructorVisible(), "Переход в Конструктор не произошел по клику на логотип");
-    }
-
-    // === API ===
-
-    private String createUser(User user) {
-        String body = String.format("{\"email\":\"%s\", \"password\":\"%s\", \"name\":\"%s\"}",
-                user.getEmail(), user.getPassword(), user.getName());
-
-        io.restassured.response.Response response = io.restassured.RestAssured.given()
-                .contentType("application/json")
-                .body(body)
-                .when()
-                .post(BASE_URL + "/api/auth/register")
-                .then()
-                .extract()
-                .response();
-
-        assertEquals(200, response.getStatusCode(), "Не удалось создать пользователя");
-        return response.jsonPath().getString("accessToken");
-    }
-
-    private void deleteUser(String accessToken) {
-        if (accessToken != null && !accessToken.isEmpty()) {
-            io.restassured.RestAssured.given()
-                    .header("Authorization", accessToken)
-                    .when()
-                    .delete(BASE_URL + "/api/auth/user")
-                    .then()
-                    .statusCode(202);
-        }
     }
 }
